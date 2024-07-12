@@ -25,7 +25,7 @@ HWND hwnd = NULL;
 const int Width = 800;
 const int Height = 600;
 
-/* Functions Prototypes */
+/* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
 void ReleaseObjects();
 bool InitScene();
