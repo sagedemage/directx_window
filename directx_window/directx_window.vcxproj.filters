@@ -37,4 +37,12 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Effects.fx">
+      <Filter>Source Files</Filter>
+    </Page>
+  </ItemGroup>
 </Project>
