@@ -186,6 +186,11 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	ID3D11Texture2D* BackBuffer;
 	hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
 
+	if (BackBuffer == 0) {
+		OutputDebugStringA("Backbuffer is zero");
+		return false;
+	}
+
 	// Create the Render Target
 	hr = d3d11Device->CreateRenderTargetView(BackBuffer, NULL, &renderTargetView);
 	BackBuffer->Release();
