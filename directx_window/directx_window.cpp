@@ -7,6 +7,9 @@
 #include <d3dcompiler.h>
 #include "resource.h"
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string> 
 
 /* Global Declarations - Interfaces */
 IDXGISwapChain* SwapChain;
@@ -53,15 +56,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 /* Vertex Structure and Vertex Layout (Input Layout) */
 struct Vertex {
 	Vertex(){}
-	Vertex(float x, float y, float z) 
-		: pos(x, y, z){}
+	Vertex(float x, float y, float z, float cr, float cg, float cb, float ca) 
+		: pos(x, y, z), color(cr, cg, cb, ca){}
 
 	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT4 color;
 };
 
 D3D11_INPUT_ELEMENT_DESC layout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 };
 
 UINT numElements = ARRAYSIZE(layout);
@@ -174,7 +179,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	// Create the SwapChain
-	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
+	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
 		D3D11_SDK_VERSION, &swapChainDesc, &SwapChain, &d3d11Device, NULL, &d3d11DevCon);
 
 	// Create the BackBuffer
@@ -243,9 +248,9 @@ bool InitScene() {
 	// Create the vertex buffer
 	Vertex v[] =
 	{
-		Vertex(0.0f, 0.5f, 0.5f),
-		Vertex(0.5f, -0.5f, 0.5f),
-		Vertex(-0.5f, -0.5f, 0.5f),
+		Vertex(0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f),
+		Vertex(0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f),
+		Vertex(-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f),
 	};
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
@@ -269,6 +274,7 @@ bool InitScene() {
 	d3d11DevCon->IASetVertexBuffers(0, 1, &triangleVertBuffer, &stride, &offset);
 
 	// Create the Input Layout
+	/* Something is going on here */
 	hr = d3d11Device->CreateInputLayout(layout, numElements, VS_Buffer->GetBufferPointer(),
 		VS_Buffer->GetBufferSize(), &vertLayout);
 
@@ -277,6 +283,10 @@ bool InitScene() {
 
 		std::string debug_msg = "CreateInputLayout ERROR\n";
 		OutputDebugStringA(debug_msg.c_str());
+
+		if (vertLayout == nullptr) {
+			OutputDebugStringA("vertLayout is a nullptr\n");
+		}
 
 		return false;
 	}
