@@ -53,7 +53,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 /* Vertex Structure and Vertex Layout (Input Layout) */
 struct Vertex {
 	Vertex(){}
-	Vertex(float x, float y, float z) : pos(x, y, z){}
+	Vertex(float x, float y, float z) 
+		: pos(x, y, z){}
 
 	DirectX::XMFLOAT3 pos;
 };
@@ -62,6 +63,7 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 {
 	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 };
+
 UINT numElements = ARRAYSIZE(layout);
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
@@ -267,8 +269,17 @@ bool InitScene() {
 	d3d11DevCon->IASetVertexBuffers(0, 1, &triangleVertBuffer, &stride, &offset);
 
 	// Create the Input Layout
-	d3d11Device->CreateInputLayout(layout, numElements, VS_Buffer->GetBufferPointer(),
+	hr = d3d11Device->CreateInputLayout(layout, numElements, VS_Buffer->GetBufferPointer(),
 		VS_Buffer->GetBufferSize(), &vertLayout);
+
+	if (FAILED(hr)) {
+		MessageBox(0, L"Failed CreateInputLayout", 0, 0);
+
+		std::string debug_msg = "CreateInputLayout ERROR\n";
+		OutputDebugStringA(debug_msg.c_str());
+
+		return false;
+	}
 
 	// Set the Input Layout
 	d3d11DevCon->IASetInputLayout(vertLayout);
@@ -325,6 +336,15 @@ int messageLoop() {
 	ZeroMemory(&msg, sizeof(MSG));
 
 	while (true) {
+
+		BOOL PeakMessageL(
+			LPMSG lpMsg,
+			HWND hWnd,
+			UINT wMsgFilterMin,
+			UINT wMsgFilterMax,
+			UINT wRemoveMsg
+		);
+
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				break;
