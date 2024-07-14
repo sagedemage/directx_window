@@ -182,6 +182,15 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
 		D3D11_SDK_VERSION, &swapChainDesc, &SwapChain, &d3d11Device, NULL, &d3d11DevCon);
 
+	if (FAILED(hr)) {
+		MessageBox(0, L"Failed D3D11CreateDeviceAndSwapChain", 0, 0);
+
+		std::string debug_msg = "D3D11CreateDeviceAndSwapChain ERROR\n";
+		OutputDebugStringA(debug_msg.c_str());
+
+		return false;
+	}
+
 	// Create the BackBuffer
 	ID3D11Texture2D* BackBuffer;
 	hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
