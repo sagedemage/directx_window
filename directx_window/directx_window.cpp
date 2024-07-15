@@ -348,15 +348,6 @@ int messageLoop() {
 	ZeroMemory(&msg, sizeof(MSG));
 
 	while (true) {
-
-		BOOL PeakMessageL(
-			LPMSG lpMsg,
-			HWND hWnd,
-			UINT wMsgFilterMin,
-			UINT wMsgFilterMax,
-			UINT wRemoveMsg
-		);
-
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
 				break;
