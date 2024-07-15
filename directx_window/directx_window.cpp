@@ -328,20 +328,7 @@ bool InitScene() {
 }
 
 void UpdateScene() {
-	/* Update the colors of the scene */
-	/*red += colormodr * 0.00005f;
-	green += colormodg * 0.00002f;
-	blue += colormodb * 0.00001f;
 
-	if (red >= 1.0f || red <= 0.0f) {
-		colormodr *= -1;
-	}
-	if (green >= 1.0f || green <= 0.0f) {
-		colormodg *= -1;
-	}
-	if (blue >= 1.0f || blue <= 0.0f) {
-		colormodb *= -1;
-	}*/
 }
 
 void DrawScene() {
