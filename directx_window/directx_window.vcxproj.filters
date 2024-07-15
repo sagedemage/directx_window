@@ -20,12 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="directx_window.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="icons\directx_window.ico">
       <Filter>Resource Files</Filter>
     </Image>
