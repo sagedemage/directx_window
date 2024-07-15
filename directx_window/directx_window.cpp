@@ -70,7 +70,6 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 }; 
 
 UINT numElements = ARRAYSIZE(layout);
-//UINT numElements = sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
