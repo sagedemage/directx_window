@@ -133,6 +133,8 @@
     <ClCompile Include="directx_window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="icons\directx.ico" />
+    <Image Include="icons\directx_small.ico" />
     <Image Include="icons\directx_window.ico" />
     <Image Include="icons\small.ico" />
   </ItemGroup>
