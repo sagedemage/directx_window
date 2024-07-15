@@ -433,3 +433,5 @@ FodyWeavers.xsd
 
 # Media files
 *.xcf
+*.kra
+*.*~
