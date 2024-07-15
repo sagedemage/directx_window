@@ -133,10 +133,8 @@
     <ClCompile Include="directx_window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="directx_window.ico" />
     <Image Include="icons\directx_window.ico" />
     <Image Include="icons\small.ico" />
-    <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
