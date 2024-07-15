@@ -287,7 +287,6 @@ bool InitScene() {
 	d3d11DevCon->IASetVertexBuffers(0, 1, &triangleVertBuffer, &stride, &offset);
 
 	// Create the Input Layout
-	/* Something is going on here */
 	hr = d3d11Device->CreateInputLayout(layout, numElements, VS_Buffer->GetBufferPointer(),
 		VS_Buffer->GetBufferSize(), &vertLayout);
 
