@@ -4,7 +4,7 @@ struct VS_OUTPUT
     float4 Color : COLOR;
 };
 
-VS_OUTPUT VS(float4 inPos : POSITIONT, float4 inColor : COLOR)
+VS_OUTPUT VS(float4 inPos : POSITION, float4 inColor : COLOR)
 {
     VS_OUTPUT output;
     
