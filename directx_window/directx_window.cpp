@@ -70,6 +70,7 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 };
 
 UINT numElements = ARRAYSIZE(layout);
+//UINT numElements = sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -296,6 +297,9 @@ bool InitScene() {
 		MessageBox(0, L"Failed CreateInputLayout", 0, 0);
 
 		std::string debug_msg = "CreateInputLayout ERROR\n";
+		OutputDebugStringA(debug_msg.c_str());
+
+		debug_msg = "Number of elements: " + std::to_string(numElements) + "\n";
 		OutputDebugStringA(debug_msg.c_str());
 
 		if (vertLayout == nullptr) {
