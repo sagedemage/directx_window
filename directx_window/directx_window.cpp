@@ -47,7 +47,6 @@ void CleanUp();
 bool InitScene();
 void UpdateScene();
 void DrawScene();
-
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
 int messageLoop();
 
