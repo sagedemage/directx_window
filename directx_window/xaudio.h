@@ -12,7 +12,7 @@
 #endif
 
 /* Little-Endian */
-#ifndef _XBOX
+#ifdef _XBOX
 #define _XBOX
 #define fourccRIFF 'FFIR'
 #define forccDATA 'atad'

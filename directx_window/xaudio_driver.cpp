@@ -132,15 +132,36 @@ bool XAudioDriver::LoadAudioFiles() {
 	DWORD dwChunkPosition;
 
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
+	DWORD filetype;
+	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
+
+	if (filetype != fourccWAVE) {
+		MessageBox(0, L"Failed ReadChunkData", 0, 0);
+
+		std::string debug_msg = "ReadChunkData ERROR\n";
+		OutputDebugStringA(debug_msg.c_str());
+		return false;
+	}
+
+	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
 	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
 
+	// fill out the audio data buffer with the contents of the fourccDATA chunk
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
 
+	float playLength = 1.0f;
+
+	buffer.Flags = XAUDIO2_END_OF_STREAM;
 	buffer.AudioBytes = dwChunkSize;
 	buffer.pAudioData = pDataBuffer;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
+	//buffer.PlayBegin = 0;
+	//buffer.PlayLength = dwChunkSize * playLength;
+	//buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
+	//buffer.LoopLength = 0;
+	//buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+	//buffer.pContext = NULL;
 
 	return true;
 }
@@ -162,9 +183,7 @@ bool XAudioDriver::PlayAudioSound() {
 	IXAudio2SourceVoice* pSourceVoice;
 	//hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx);
 
-	const XAUDIO2_VOICE_SENDS pSendList;
-
-	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, &pSendList, NULL);
+	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateSourceVoice", 0, 0);
@@ -178,6 +197,36 @@ bool XAudioDriver::PlayAudioSound() {
 		if (pSourceVoice == NULL) {
 			OutputDebugStringA("pSourceVoice is NULL");
 		}
+
+		switch (hr) {
+		case XAUDIO2_E_INVALID_CALL:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_INVALID_CALL", 0, 0);
+			OutputDebugStringA("ERROR CODE: XAUDIO2_E_INVALID_CALL\n");
+			break;
+		case XAUDIO2_E_XMA_DECODER_ERROR:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_XMA_DECODER_ERROR", 0, 0);
+			OutputDebugStringA("ERROR CODE: XAUDIO2_E_XMA_DECODER_ERROR\n");
+			break;
+		case XAUDIO2_E_XAPO_CREATION_FAILED:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_XAPO_CREATION_FAILED", 0, 0);
+			OutputDebugStringA("ERROR CODE: XAUDIO2_E_XAPO_CREATION_FAILED\n");
+			break;
+		case XAUDIO2_E_DEVICE_INVALIDATED:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_DEVICE_INVALIDATED", 0, 0);
+			OutputDebugStringA("ERROR CODE: XAUDIO2_E_DEVICE_INVALIDATED\n");
+			break;
+		}
+
+		return false;
+	}
+
+	hr = pSourceVoice->SubmitSourceBuffer(&buffer);
+
+	if (FAILED(hr)) {
+		MessageBox(0, L"Failed SubmitSourceBuffer", 0, 0);
+
+		std::string debug_msg = "SubmitSourceBuffer ERROR\n";
+		OutputDebugStringA(debug_msg.c_str());
 
 		switch (hr) {
 		case XAUDIO2_E_INVALID_CALL:
