@@ -94,13 +94,17 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 }
 
 bool XAudioDriver::LoadAudioFiles() {
+	/*
 	wfx.wFormatTag = WAVE_FORMAT_PCM;
 	wfx.nChannels = 1;
-	wfx.nSamplesPerSec = 11025L;
-	wfx.nBlockAlign = 1;
+	//wfx.nSamplesPerSec = 8000L; // 8.0 kHz
+	wfx.nSamplesPerSec = 11025L; // 11.025 kHz
+	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
+	//wfx.nBlockAlign = 1;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.wBitsPerSample = 8;
 	wfx.cbSize = 0;
+	*/
 
 	hFile = CreateFile(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -143,6 +147,7 @@ bool XAudioDriver::LoadAudioFiles() {
 		return false;
 	}
 
+	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
 	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
 
