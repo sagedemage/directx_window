@@ -6,8 +6,6 @@
 #include <d3d11.h>
 #include <directxmath.h>
 #include <d3dcompiler.h>
-#include <xaudio2.h>
-#include <system_error>
 
 /* Standard Libraries */
 #include <iostream>
@@ -17,7 +15,7 @@
 
 /* Local header files */
 #include "resource.h"
-#include "xaudio.h"
+#include "xaudio_driver.h"
 
 /* Global Declarations - Interfaces */
 IDXGISwapChain* SwapChain;
@@ -49,14 +47,6 @@ ID3D10Blob* ppErrorMsgs;
 const int Width = 800;
 const int Height = 600;
 
-IXAudio2* pXAudio2 = nullptr;
-IXAudio2MasteringVoice* pMasterVoice = nullptr;
-
-WAVEFORMATEXTENSIBLE wfx = { 0 };
-XAUDIO2_BUFFER buffer = { 0 };
-const TCHAR* audioFilePath = __TEXT(".\\music\\shut_up_fool.wav");
-HANDLE hFile;
-
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
 void CleanUp();
@@ -65,9 +55,6 @@ void UpdateScene();
 void DrawScene();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
 int messageLoop();
-bool InitializeXaudio();
-bool LoadAudioFiles();
-bool PlayAudioSound();
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -112,20 +99,22 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 		return 0;
 	}
 
+	XAudioDriver xAudioDriver = XAudioDriver();
+
 	// Initialize XAudio
-	if (!InitializeXaudio()) {
+	if (!xAudioDriver.InitializeXaudio()) {
 		MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
 	// Load Audio Files
-	if (!LoadAudioFiles()) {
+	if (!xAudioDriver.LoadAudioFiles()) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
 	// Play Audio Sound
-	if (!PlayAudioSound()) {
+	if (!xAudioDriver.PlayAudioSound()) {
 		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
 		return 0;
 	}
@@ -259,8 +248,6 @@ void CleanUp() {
 	VS_Buffer->Release();
 	PS_Buffer->Release();
 	vertLayout->Release();
-
-	pXAudio2->Release();
 }
 
 bool InitScene() {
@@ -434,211 +421,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
-}
-
-bool InitializeXaudio() {
-	hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
-	
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CoInitializeEx", 0, 0);
-
-		std::string debug_msg = "CoInitializeEx ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed XAudio2Create", 0, 0);
-
-		std::string debug_msg = "XAudio2Create ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	hr = pXAudio2->CreateMasteringVoice(&pMasterVoice);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
-
-		std::string debug_msg = "CreateMasteringVoice ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	return true;
-}
-
-HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD &dwChunkSize, DWORD &dwChunkDataPosition) {
-	HRESULT hr = S_OK;
-
-	DWORD dwChunkType;
-	DWORD dwChunkDataSize;
-	DWORD dwRIFFDataSize = 0;
-	DWORD dwFileType;
-	DWORD bytesRead = 0;
-	DWORD dwOffset = 0;
-
-	while(hr == S_OK) {
-		DWORD dwRead;
-		if (ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL)) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-		}
-		if (ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL)) {
-			hr = HRESULT_FROM_WIN32(GetLastError());
-		}
-
-		switch (dwChunkType) {
-		case fourccRIFF:
-			dwRIFFDataSize = dwChunkDataSize;
-			dwChunkDataSize = 4;
-			if (ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL)) {
-				hr = HRESULT_FROM_WIN32(GetLastError());
-			}
-			break;
-		default:
-			if (SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT)) {
-				hr = HRESULT_FROM_WIN32(GetLastError());
-			}
-		}
-
-		dwOffset += sizeof(DWORD) * 2;
-		if (dwChunkType == fourcc) {
-			dwChunkSize = dwChunkDataSize;
-			dwChunkDataPosition = dwOffset;
-			return S_OK;
-		}
-
-		dwOffset += dwChunkDataSize;
-
-		if (bytesRead >= dwRIFFDataSize) return S_FALSE;
-	}
-
-	return S_OK;
-}
-
-HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset) {
-	HRESULT hr = S_OK;
-	if (SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER) {
-		return HRESULT_FROM_WIN32(GetLastError());
-	}
-
-	DWORD dwRead;
-	if (ReadFile(hFile, buffer, buffersize, &dwRead, NULL)) {
-		hr = HRESULT_FROM_WIN32(GetLastError());
-	}
-	return hr;
-}
-
-bool LoadAudioFiles() {
-	hFile = CreateFile(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-
-	if (hFile == INVALID_HANDLE_VALUE) {
-		HRESULT error_code = HRESULT_FROM_WIN32(GetLastError());
-
-		MessageBox(0, L"Failed CreateFile", 0, 0);
-
-		std::string debug_msg = "CreateFile ERROR\n" + error_code;
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	DWORD fileP = SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
-
-	if (fileP == INVALID_SET_FILE_POINTER) {
-		HRESULT error_code = HRESULT_FROM_WIN32(GetLastError());
-
-		MessageBox(0, L"Failed SetFilePointer", 0, 0);
-
-		std::string debug_msg = "SetFilePointer ERROR\n" + error_code;
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	DWORD dwChunkSize;
-	DWORD dwChunkPosition;
-
-	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
-	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
-
-	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
-	BYTE* pDataBuffer = new BYTE[dwChunkSize];
-	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
-
-	buffer.AudioBytes = dwChunkSize;
-	buffer.pAudioData = pDataBuffer;
-	buffer.Flags = XAUDIO2_END_OF_STREAM;
-
-	return true;
-}
-
-bool PlayAudioSound() {
-	IXAudio2SourceVoice* pSourceVoice;
-	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CreateSourceVoice", 0, 0);
-
-		std::string debug_msg = "CreateSourceVoice ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		switch (hr) {
-		case E_ABORT:
-			OutputDebugStringA("E_ABORT\n");
-			break;
-		case E_ACCESSDENIED:
-			OutputDebugStringA("E_ACCESSDENIED\n");
-			break;
-		case E_FAIL:
-			OutputDebugStringA("E_FAIL\n");
-			break;
-		case E_HANDLE:
-			OutputDebugStringA("E_HANDLE\n");
-			break;
-		case E_INVALIDARG:
-			OutputDebugStringA("E_INVALIDARG\n");
-			break;
-		case E_NOINTERFACE:
-			OutputDebugStringA("E_NOINTERFACE\n");
-			break;
-		case E_NOTIMPL:
-			OutputDebugStringA("E_NOTIMPL\n");
-			break;
-		case E_OUTOFMEMORY:
-			OutputDebugStringA("E_OUTOFMEMORY\n");
-			break;
-		case E_POINTER:
-			OutputDebugStringA("E_POINTER\n");
-			break;
-		case E_UNEXPECTED:
-			OutputDebugStringA("E_UNEXPECTED\n");
-			break;
-		default:
-			std::string message = "ERROR: " + std::system_category().message(hr) + "\n";
-			OutputDebugStringA(message.c_str());
-		}
-
-		return false;
-	}
-
-	hr = pSourceVoice->Start(0);
-
-	if (FAILED(hr)) {
-		MessageBox(0, L"Failed Start", 0, 0);
-
-		std::string debug_msg = "Start ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
-
-	return true;
 }
 
 

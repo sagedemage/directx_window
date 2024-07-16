@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="directx_window.cpp" />
+    <ClCompile Include="xaudio_driver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="icons\directx.ico" />
@@ -141,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="xaudio.h" />
+    <ClInclude Include="xaudio_driver.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
