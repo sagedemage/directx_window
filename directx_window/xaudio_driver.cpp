@@ -181,15 +181,19 @@ bool XAudioDriver::PlayAudioSound() {
 
 		switch (hr) {
 		case XAUDIO2_E_INVALID_CALL:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_INVALID_CALL", 0, 0);
 			OutputDebugStringA("ERROR CODE: XAUDIO2_E_INVALID_CALL\n");
 			break;
 		case XAUDIO2_E_XMA_DECODER_ERROR:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_XMA_DECODER_ERROR", 0, 0);
 			OutputDebugStringA("ERROR CODE: XAUDIO2_E_XMA_DECODER_ERROR\n");
 			break;
 		case XAUDIO2_E_XAPO_CREATION_FAILED:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_XAPO_CREATION_FAILED", 0, 0);
 			OutputDebugStringA("ERROR CODE: XAUDIO2_E_XAPO_CREATION_FAILED\n");
 			break;
 		case XAUDIO2_E_DEVICE_INVALIDATED:
+			MessageBox(0, L"ERROR CODE: XAUDIO2_E_DEVICE_INVALIDATED", 0, 0);
 			OutputDebugStringA("ERROR CODE: XAUDIO2_E_DEVICE_INVALIDATED\n");
 			break;
 		}
