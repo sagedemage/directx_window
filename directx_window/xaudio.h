@@ -1,8 +1,7 @@
 //#pragma once
 
 /* Big - Endian */
-#ifndef _XBOX
-#define _XBOX
+#ifdef _XBOX
 #define fourccRIFF 'RIFF'
 #define fourccDATA 'data'
 #define fourccFMT 'fmt'
@@ -12,10 +11,9 @@
 #endif
 
 /* Little-Endian */
-#ifdef _XBOX
-#define _XBOX
+#ifndef _XBOX
 #define fourccRIFF 'FFIR'
-#define forccDATA 'atad'
+#define fourccDATA 'atad'
 #define fourccFMT 'tmf'
 #define fourccWAVE 'EVAW'
 #define fourccXWMA 'AMWX'
