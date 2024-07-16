@@ -10,7 +10,7 @@ private:
 	IXAudio2* pXAudio2 = nullptr;
 	IXAudio2MasteringVoice* pMasterVoice = nullptr;
 
-	WAVEFORMATEX wfx = { 0 };
+	WAVEFORMATEXTENSIBLE wfx = { 0 };
 	XAUDIO2_BUFFER buffer = { 0 };
 	const TCHAR* audioFilePath = __TEXT(".\\music\\shut_up_fool.wav");
 	HANDLE hFile;
