@@ -96,8 +96,8 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 bool XAudioDriver::LoadAudioFiles() {
 	wfx.wFormatTag = WAVE_FORMAT_PCM;
 	wfx.nChannels = 1;
-	wfx.nSamplesPerSec = 8.0;
-	wfx.nBlockAlign = (wfx.nChannels * wfx.wBitsPerSample) / 8;
+	wfx.nSamplesPerSec = 11025L;
+	wfx.nBlockAlign = 1;
 	wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 	wfx.wBitsPerSample = 8;
 	wfx.cbSize = 0;
