@@ -57,10 +57,10 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 
 	while (hr == S_OK) {
 		DWORD dwRead;
-		if (ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL)) {
+		if (ReadFile(hFile, &dwChunkType, sizeof(DWORD), &dwRead, NULL) == 0) {
 			hr = HRESULT_FROM_WIN32(GetLastError());
 		}
-		if (ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL)) {
+		if (ReadFile(hFile, &dwChunkDataSize, sizeof(DWORD), &dwRead, NULL) == 0) {
 			hr = HRESULT_FROM_WIN32(GetLastError());
 		}
 
@@ -68,17 +68,18 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 		case fourccRIFF:
 			dwRIFFDataSize = dwChunkDataSize;
 			dwChunkDataSize = 4;
-			if (ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL)) {
+			if (ReadFile(hFile, &dwFileType, sizeof(DWORD), &dwRead, NULL) == 0) {
 				hr = HRESULT_FROM_WIN32(GetLastError());
 			}
 			break;
 		default:
-			if (SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT)) {
+			if (SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT) == INVALID_SET_FILE_POINTER) {
 				hr = HRESULT_FROM_WIN32(GetLastError());
 			}
 		}
 
 		dwOffset += sizeof(DWORD) * 2;
+
 		if (dwChunkType == fourcc) {
 			dwChunkSize = dwChunkDataSize;
 			dwChunkDataPosition = dwOffset;
@@ -87,7 +88,9 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 
 		dwOffset += dwChunkDataSize;
 
-		if (bytesRead >= dwRIFFDataSize) return S_FALSE;
+		if (bytesRead >= dwRIFFDataSize) {
+			return S_FALSE;
+		}
 	}
 
 	return S_OK;
@@ -178,7 +181,7 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize
 	}
 
 	DWORD dwRead;
-	if (ReadFile(hFile, buffer, buffersize, &dwRead, NULL)) {
+	if (ReadFile(hFile, buffer, buffersize, &dwRead, NULL) == 0) {
 		hr = HRESULT_FROM_WIN32(GetLastError());
 	}
 	return hr;
@@ -186,9 +189,9 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize
 
 bool XAudioDriver::PlayAudioSound() {
 	IXAudio2SourceVoice* pSourceVoice;
-	//hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx);
+	//hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx);
 
-	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, &wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
+	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateSourceVoice", 0, 0);
