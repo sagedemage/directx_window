@@ -122,6 +122,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	messageLoop();
 
 	CleanUp();
+	xAudioDriver.CleanUp();
 
 	return 0;
 }
