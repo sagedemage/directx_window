@@ -6,7 +6,7 @@
 #define fourccDATA 'data'
 #define fourccFMT 'fmt'
 #define fourccWAVE 'WAVE'
-#define fourccXWMA 'XMWA'
+#define fourccXWMA 'XWMA'
 #define foruccDPDS 'dpds'
 #endif
 
