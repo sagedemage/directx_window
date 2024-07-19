@@ -120,18 +120,7 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 			// the dwChunkDataSize is not the right parameter
 			DWORD fileP = SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT);
 			if (fileP == INVALID_SET_FILE_POINTER) {
-				// Print error message
-				hr = HRESULT_FROM_WIN32(GetLastError());
-				_com_error err(hr);
-				LPCTSTR errMsg = err.ErrorMessage();
-				OutputDebugStringW(errMsg);
-				OutputDebugStringA("\n");
-				OutputDebugStringA("SetFilePointerEx Error: INVALID_SET_FILE_POINTER\n");
-
-				std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-				OutputDebugStringA(debug_msg.c_str());
-
-				return hr;
+				return HRESULT_FROM_WIN32(GetLastError());
 			}
 		}
 
