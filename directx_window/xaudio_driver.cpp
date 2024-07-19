@@ -91,19 +91,6 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 		return hr;
 	}
 
-	else if (fileP == ERROR_NEGATIVE_SEEK) {
-		// Print error message
-		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointerEx Error: ERROR_NEGATIVE_SEEK\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-	}
-
 	DWORD dwChunkType;
 	DWORD dwChunkDataSize;
 	DWORD dwRIFFDataSize = 0;
@@ -149,19 +136,6 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 
 				return hr;
 			}
-
-			else if (fileP == ERROR_NEGATIVE_SEEK) {
-				// Print error message
-				hr = HRESULT_FROM_WIN32(GetLastError());
-				_com_error err(hr);
-				LPCTSTR errMsg = err.ErrorMessage();
-				OutputDebugStringW(errMsg);
-				OutputDebugStringA("\n");
-				OutputDebugStringA("SetFilePointerEx Error: ERROR_NEGATIVE_SEEK\n");
-
-				std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-				OutputDebugStringA(debug_msg.c_str());
-			}
 		}
 
 		dwOffset += sizeof(DWORD) * 2;
@@ -200,19 +174,6 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize
 		OutputDebugStringA(debug_msg.c_str());
 
 		return hr;
-	}
-
-	else if (fileP == ERROR_NEGATIVE_SEEK) {
-		// Print error message
-		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointerEx Error: ERROR_NEGATIVE_SEEK\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
 	}
 
 	DWORD dwRead;
@@ -260,19 +221,6 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		OutputDebugStringA(debug_msg.c_str());
 
 		return false;
-	}
-
-	else if (fileP == ERROR_NEGATIVE_SEEK) {
-		// Print error message
-		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointerEx Error: ERROR_NEGATIVE_SEEK\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
 	}
 
 	DWORD dwChunkSize;
