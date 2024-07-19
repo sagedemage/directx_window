@@ -253,12 +253,12 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	buffer.AudioBytes = dwChunkSize;
 	buffer.pAudioData = pDataBuffer;
 	
-	/*buffer.PlayBegin = 0;
+	buffer.PlayBegin = 0;
 	buffer.PlayLength = UINT32(dwChunkSize * playLength);
 	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
 	buffer.LoopLength = 0;
 	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
-	buffer.pContext = NULL;*/
+	buffer.pContext = NULL;
 
 	return true;
 }
@@ -267,11 +267,14 @@ bool XAudioDriver::PlayAudioSound() {
 	HRESULT hr;
 	IXAudio2SourceVoice* pSourceVoice;
 
+	const long nSamplesPerSec = 11025L;
+	const int nBlockAlign = 1;
+
 	wfx.Format.wFormatTag = WAVE_FORMAT_PCM;
 	wfx.Format.nChannels = 1;
-	wfx.Format.nSamplesPerSec = 11025L;
-	wfx.Format.nAvgBytesPerSec = 11025L;
-	wfx.Format.nBlockAlign = 1;
+	wfx.Format.nSamplesPerSec = nSamplesPerSec;
+	wfx.Format.nAvgBytesPerSec = nSamplesPerSec * nBlockAlign;
+	wfx.Format.nBlockAlign = nBlockAlign;
 	wfx.Format.wBitsPerSample = 8;
 	wfx.Format.cbSize = 0;
 	
