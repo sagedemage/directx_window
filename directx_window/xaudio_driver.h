@@ -6,22 +6,21 @@
 
 class XAudioDriver {
 private:
-	/* Global Declarations - Audio */
+	/* Global Declarations */
 	IXAudio2* pXAudio2 = nullptr;
 	IXAudio2MasteringVoice* pMasterVoice = nullptr;
 
 	WAVEFORMATEXTENSIBLE wfx = { 0 };
 	XAUDIO2_BUFFER buffer = { 0 };
-	const TCHAR* audioFilePath = __TEXT(".\\music\\shut_up_fool.wav");
-	HANDLE hFile;
 
-	HRESULT hr;
+	/* Methods */
+	static HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition);
+	static HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset);
 public:
 	/* Audio Methods */
 	bool InitializeXaudio();
-	bool LoadAudioFiles();
+	bool LoadAudioFile(LPCSTR audioFilePath);
 	bool PlayAudioSound();
-	static HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition);
-	static HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset);
+	
 	void CleanUp();
 };

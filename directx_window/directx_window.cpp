@@ -49,12 +49,12 @@ const int Height = 600;
 
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
-void CleanUp();
+void CleanUp(XAudioDriver xAudioDriver);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
-int messageLoop();
+int messageLoop(XAudioDriver xAudioDriver);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -76,17 +76,22 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 
 UINT numElements = ARRAYSIZE(layout);
 
+/* Main function */
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nShowCmd)
 {
+	HRESULT hr = S_OK;
+
+	/* Window */
 	// Initialize Window
 	if (!InitializeWindow(hInstance, nShowCmd, Width, Height, true)) {
 		MessageBox(0, L"Window Initialization - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
+	/* Direct3D */
 	// Initialize Direct3D
 	if (!InitializeDirect3d11App(hInstance)) {
 		MessageBox(0, L"Direct3D Initialization - Failed", L"Error", MB_OK);
@@ -99,6 +104,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 		return 0;
 	}
 
+	/* Audio */
 	XAudioDriver xAudioDriver = XAudioDriver();
 
 	// Initialize XAudio
@@ -107,22 +113,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 		return 0;
 	}
 
-	// Load Audio Files
-	if (!xAudioDriver.LoadAudioFiles()) {
-		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
-		return 0;
-	}
+	messageLoop(xAudioDriver);
 
-	// Play Audio Sound
-	if (!xAudioDriver.PlayAudioSound()) {
-		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
-		return 0;
-	}
-
-	messageLoop();
-
-	CleanUp();
-	xAudioDriver.CleanUp();
+	/* Clean up resources */
+	CleanUp(xAudioDriver);
 
 	return 0;
 }
@@ -236,7 +230,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	return true;
 }
 
-void CleanUp() {
+void CleanUp(XAudioDriver xAudioDriver) {
 	/* Release the COM Objects that were created */
 	SwapChain->Release();
 	d3d11Device->Release();
@@ -249,6 +243,8 @@ void CleanUp() {
 	VS_Buffer->Release();
 	PS_Buffer->Release();
 	vertLayout->Release();
+
+	xAudioDriver.CleanUp();
 }
 
 bool InitScene() {
@@ -370,9 +366,23 @@ void DrawScene() {
 	SwapChain->Present(0, 0);
 }
 
-int messageLoop() {
+int messageLoop(XAudioDriver xAudioDriver) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
+
+	// Load Audio Files
+	LPCSTR audioFilePath = ".\\music\\sample_music.wav";
+
+	if (!xAudioDriver.LoadAudioFile(audioFilePath)) {
+		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
+		return 0;
+	}
+
+	// Play Audio Sound
+	if (!xAudioDriver.PlayAudioSound()) {
+		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
+		return 0;
+	}
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
