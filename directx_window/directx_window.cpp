@@ -371,7 +371,7 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	ZeroMemory(&msg, sizeof(MSG));
 
 	// Load Audio Files
-	LPCSTR audioFilePath = ".\\music\\sample_music.wav";
+	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
 	if (!xAudioDriver.LoadAudioFile(audioFilePath)) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
