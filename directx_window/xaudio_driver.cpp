@@ -11,9 +11,9 @@
 #include "xaudio.h"
 
 bool XAudioDriver::InitializeXaudio() {
+	/* Initialize COM Library */
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	// Initialize COM
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CoInitializeEx", 0, 0);
 
@@ -30,7 +30,7 @@ bool XAudioDriver::InitializeXaudio() {
 		return false;
 	}
 
-	// Initialize XAudio
+	/* Initialize XAudio to create an instance of the XAudio2 engine */
 	hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
 
 	if (FAILED(hr)) {
@@ -49,8 +49,15 @@ bool XAudioDriver::InitializeXaudio() {
 		return false;
 	}
 
-	// Initialize XAudio mastering voice
-	hr = pXAudio2->CreateMasteringVoice(&pMasterVoice);
+	/* Create a mastering voice */
+	hr = pXAudio2->CreateMasteringVoice(
+		&pMasterVoice, 
+		XAUDIO2_DEFAULT_CHANNELS, 
+		XAUDIO2_DEFAULT_SAMPLERATE,
+		0,
+		NULL,
+		NULL
+		);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
@@ -259,6 +266,14 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 bool XAudioDriver::PlayAudioSound() {
 	HRESULT hr;
 	IXAudio2SourceVoice* pSourceVoice;
+
+	wfx.Format.wFormatTag = WAVE_FORMAT_PCM;
+	wfx.Format.nChannels = 1;
+	wfx.Format.nSamplesPerSec = 11025L;
+	wfx.Format.nAvgBytesPerSec = 11025L;
+	wfx.Format.nBlockAlign = 1;
+	wfx.Format.wBitsPerSample = 8;
+	wfx.Format.cbSize = 0;
 	
 	// Initialize XAudio source voice
 	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
