@@ -220,28 +220,13 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		return false;
 	}
 
-	/* RIFF Chunk */
 	DWORD dwChunkSize;
 	DWORD dwChunkPosition;
-
+	
+	/* RIFF Chunk */
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
-
 	DWORD filetype;
-
-	hr = ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("ReadChunkData Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-		return false;
-	}
+	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
 
 	if (filetype != fourccWAVE) {
 		MessageBox(0, L"Filetype not WAVE", 0, 0);
@@ -257,44 +242,13 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 
 	/* FMT Chunk */
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
-
 	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
-	hr = ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("ReadChunkData Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
+	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
 
 	/* Data chunk */
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
-	
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
-	
-	hr = ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("ReadChunkData Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
+	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
 
 	float playLength = 1.0f;
 
