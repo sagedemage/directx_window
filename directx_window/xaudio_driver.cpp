@@ -246,12 +246,12 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	buffer.AudioBytes = dwChunkSize;
 	buffer.pAudioData = pDataBuffer;
 	
-	buffer.PlayBegin = 0;
+	/*buffer.PlayBegin = 0;
 	buffer.PlayLength = UINT32(dwChunkSize * playLength);
 	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
 	buffer.LoopLength = 0;
 	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
-	buffer.pContext = NULL;
+	buffer.pContext = NULL;*/
 
 	return true;
 }
@@ -272,6 +272,10 @@ bool XAudioDriver::PlayAudioSound() {
 		_com_error err(hr);
 		LPCTSTR errMsg = err.ErrorMessage();
 		OutputDebugStringW(errMsg);
+		OutputDebugStringA("\n");
+
+		std::string errCode = "Error code: " + std::to_string(err.WCode());
+		OutputDebugStringA(errCode.c_str());
 		OutputDebugStringA("\n");
 		OutputDebugStringA("CreateSourceVoice Error\n");
 
