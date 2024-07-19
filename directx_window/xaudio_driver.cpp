@@ -277,6 +277,10 @@ bool XAudioDriver::PlayAudioSound() {
 	wfx.Format.nBlockAlign = nBlockAlign;
 	wfx.Format.wBitsPerSample = 8;
 	wfx.Format.cbSize = 0;
+
+	wfx.Samples.wValidBitsPerSample = 8;
+	wfx.Samples.wSamplesPerBlock = 0;
+	wfx.Samples.wReserved = 0;
 	
 	// Initialize XAudio source voice
 	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
