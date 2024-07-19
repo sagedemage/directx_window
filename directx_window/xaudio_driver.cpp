@@ -120,9 +120,6 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 			// the dwChunkDataSize is not the right parameter
 			DWORD fileP = SetFilePointer(hFile, dwChunkDataSize, NULL, FILE_CURRENT);
 			if (fileP == INVALID_SET_FILE_POINTER) {
-				// Issue right here
-				MessageBox(0, L"Failed SetFilePointer for dwChunkType", 0, 0);
-
 				// Print error message
 				hr = HRESULT_FROM_WIN32(GetLastError());
 				_com_error err(hr);
@@ -223,23 +220,11 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		return false;
 	}
 
+	/* RIFF Chunk */
 	DWORD dwChunkSize;
 	DWORD dwChunkPosition;
 
-	hr = FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("FindChunk Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-		return false;
-	}
+	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
 
 	DWORD filetype;
 
@@ -270,22 +255,8 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		return false;
 	}
 
-	// issue right here
-	hr = FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("FindChunk Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
+	/* FMT Chunk */
+	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
 
 	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
 	hr = ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
@@ -304,23 +275,8 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		return false;
 	}
 
-	// issue right here
-	// fill out the audio data buffer with the contents of the fourccDATA chunk
-	hr = FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
-
-	if (FAILED(hr)) {
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("FindChunk Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		return false;
-	}
+	/* Data chunk */
+	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	
@@ -346,6 +302,7 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
 	buffer.AudioBytes = dwChunkSize;
 	buffer.pAudioData = pDataBuffer;
+	
 	buffer.PlayBegin = 0;
 	buffer.PlayLength = UINT32(dwChunkSize * playLength);
 	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
