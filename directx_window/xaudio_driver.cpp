@@ -259,7 +259,7 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	buffer.PlayLength = UINT32(dwChunkSize * playLength);
 	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
 	buffer.LoopLength = 0;
-	buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
+	buffer.LoopCount = 1;
 	buffer.pContext = NULL;
 
 	return true;
