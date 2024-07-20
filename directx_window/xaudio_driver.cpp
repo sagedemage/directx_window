@@ -116,7 +116,6 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 			hr = HRESULT_FROM_WIN32(GetLastError());
 		}
 
-		// fourccDATA
 		switch (dwChunkType) {
 		case fourccRIFF:
 			dwRIFFDataSize = dwChunkDataSize;
@@ -221,7 +220,7 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	DWORD dwChunkSize;
 	DWORD dwChunkPosition;
 	
-	/* RIFF Chunk */
+	/* RIFF chunk */
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
 	DWORD filetype;
 	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
@@ -238,12 +237,12 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		return false;
 	}
 
-	/* FMT Chunk */
+	/* fmt sub-chunk */
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
 	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
 	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
 
-	/* Data chunk */
+	/* data sub-chunk */
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
