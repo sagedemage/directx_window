@@ -48,7 +48,7 @@ ID3D10Blob* ppErrorMsgs;
 const int Width = 800;
 const int Height = 600;
 
-const float volume = 0.15;
+const float volume = 0.25;
 
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);

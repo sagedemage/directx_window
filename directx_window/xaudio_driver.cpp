@@ -269,6 +269,12 @@ bool XAudioDriver::PlayAudioSound() {
 	HRESULT hr;
 	IXAudio2SourceVoice* pSourceVoice;
 
+	/*
+	  8.000 kHz =  8000L
+	 11.025 kHz = 11025L
+	 22.050 kHz = 22050L
+	 44.100 kHz = 44100L
+	 */
 	const long nSamplesPerSec = 11025L;
 	const int nBlockAlign = 1;
 
@@ -327,6 +333,12 @@ bool XAudioDriver::PlayAudioSound() {
 
 		return false;
 	}
+
+	// Set frequency of the source voice
+	float sourceRate = 1;
+	float targetRate = 32;
+	float frequencyRatio = sourceRate / targetRate;
+	pSourceVoice->SetFrequencyRatio(frequencyRatio);
 
 	// Start the XAudio source voice
 	hr = pSourceVoice->Start(0);
