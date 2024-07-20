@@ -269,6 +269,7 @@ bool XAudioDriver::PlayAudioSound() {
 	HRESULT hr;
 	IXAudio2SourceVoice* pSourceVoice;
 
+	/* WAVEFORMATEX Format of the WAVE */
 	/*
 	  8.000 kHz =  8000L
 	 11.025 kHz = 11025L
@@ -288,9 +289,16 @@ bool XAudioDriver::PlayAudioSound() {
 	wfx.Format.wBitsPerSample = wBitsPerSample;
 	wfx.Format.cbSize = 22;
 
-	wfx.Samples.wValidBitsPerSample = 8;
+	/* Sample Format */
+	wfx.Samples.wValidBitsPerSample = wBitsPerSample;
 	wfx.Samples.wSamplesPerBlock = 0;
 	wfx.Samples.wReserved = 0;
+
+	// dwChannelMask Specifies which channels are present in the multichannel stream
+	wfx.dwChannelMask = SPEAKER_BACK_CENTER;
+
+	// Subformat
+	wfx.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
 	
 	// Initialize XAudio source voice
 	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
