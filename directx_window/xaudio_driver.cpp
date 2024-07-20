@@ -5,6 +5,7 @@
 #include <string>
 #include <comdef.h>
 #include <exception>
+#include <chrono>
 
 /* Local header files */
 #include "xaudio_driver.h"
@@ -221,6 +222,7 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	DWORD dwChunkPosition;
 	
 	/* RIFF chunk */
+	auto start = std::chrono::steady_clock::now();
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
 	DWORD filetype;
 	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
@@ -236,16 +238,39 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 		OutputDebugStringA(debug_msg.c_str());
 		return false;
 	}
+	auto end = std::chrono::steady_clock::now();
+
+	// Record time
+	auto diff = end - start;
+	double exe_time = std::chrono::duration<double, std::milli>(diff).count();
+	std::string debug_msg = "Load RIFF chunk execution time: " + std::to_string(exe_time) + "ms\n";
+	OutputDebugStringA(debug_msg.c_str());
 
 	/* fmt sub-chunk */
+	start = std::chrono::steady_clock::now();
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
 	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
 	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
+	end = std::chrono::steady_clock::now();
+
+	// Record time
+	diff = end - start;
+	exe_time = std::chrono::duration<double, std::milli>(diff).count();
+	debug_msg = "Load fmt sub-chunk execution time: " + std::to_string(exe_time) + "ms\n";
+	OutputDebugStringA(debug_msg.c_str());
 
 	/* data sub-chunk */
+	start = std::chrono::steady_clock::now();
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
+	end = std::chrono::steady_clock::now();
+
+	// Record time
+	diff = end - start;
+	exe_time = std::chrono::duration<double, std::milli>(diff).count();
+	debug_msg = "Load data sub-chunk execution time: " + std::to_string(exe_time) + "ms\n";
+	OutputDebugStringA(debug_msg.c_str());
 
 	float playLengthMultiplier = 1.0f;
 
