@@ -276,15 +276,17 @@ bool XAudioDriver::PlayAudioSound() {
 	 44.100 kHz = 44100L
 	 */
 	const long nSamplesPerSec = 11025L;
-	const int nBlockAlign = 1;
+	const int nChannels = 1;
+	const int wBitsPerSample = 8;
+	const int nBlockAlign = (nChannels*wBitsPerSample)/8;
 
 	wfx.Format.wFormatTag = WAVE_FORMAT_PCM;
-	wfx.Format.nChannels = 1;
+	wfx.Format.nChannels = nChannels;
 	wfx.Format.nSamplesPerSec = nSamplesPerSec;
 	wfx.Format.nAvgBytesPerSec = nSamplesPerSec * nBlockAlign;
 	wfx.Format.nBlockAlign = nBlockAlign;
-	wfx.Format.wBitsPerSample = 8;
-	wfx.Format.cbSize = 0;
+	wfx.Format.wBitsPerSample = wBitsPerSample;
+	wfx.Format.cbSize = 22;
 
 	wfx.Samples.wValidBitsPerSample = 8;
 	wfx.Samples.wSamplesPerBlock = 0;
