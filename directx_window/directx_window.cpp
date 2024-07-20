@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <chrono>
 
 /* Local header files */
 #include "resource.h"
@@ -46,6 +47,8 @@ ID3D10Blob* ppErrorMsgs;
 
 const int Width = 800;
 const int Height = 600;
+
+const float volume = 0.15;
 
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
@@ -108,7 +111,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	XAudioDriver xAudioDriver = XAudioDriver();
 
 	// Initialize XAudio
-	if (!xAudioDriver.InitializeXaudio()) {
+	if (!xAudioDriver.InitializeXaudio(volume)) {
 		MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
 		return 0;
 	}
@@ -373,16 +376,32 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	// Load Audio Files
 	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
+	auto start = std::chrono::steady_clock::now();
 	if (!xAudioDriver.LoadAudioFile(audioFilePath)) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
 		return 0;
 	}
+	auto end = std::chrono::steady_clock::now();
 
+	auto diff = end - start;
+
+	double exe_time = std::chrono::duration<double, std::milli>(diff).count();
+	std::string debug_msg = "LoadAudioFile execution time: " + std::to_string(exe_time) + "ms\n";
+	OutputDebugStringA(debug_msg.c_str());
+
+	start = std::chrono::steady_clock::now();
 	// Play Audio Sound
 	if (!xAudioDriver.PlayAudioSound()) {
 		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
 		return 0;
 	}
+	end = std::chrono::steady_clock::now();
+
+	diff = end - start;
+
+	exe_time = std::chrono::duration<double, std::milli>(diff).count();
+	debug_msg = "PlayAudioSound execution time: " + std::to_string(exe_time) + "ms\n";
+	OutputDebugStringA(debug_msg.c_str());
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {

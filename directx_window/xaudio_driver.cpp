@@ -10,7 +10,7 @@
 #include "xaudio_driver.h"
 #include "xaudio.h"
 
-bool XAudioDriver::InitializeXaudio() {
+bool XAudioDriver::InitializeXaudio(float volume) {
 	/* Initialize COM Library */
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
@@ -58,6 +58,8 @@ bool XAudioDriver::InitializeXaudio() {
 		NULL,
 		NULL
 		);
+
+	pMasterVoice->SetVolume(volume);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);

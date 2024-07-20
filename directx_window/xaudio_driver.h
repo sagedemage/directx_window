@@ -18,7 +18,7 @@ private:
 	static HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset);
 public:
 	/* Audio Methods */
-	bool InitializeXaudio();
+	bool InitializeXaudio(float volume);
 	bool LoadAudioFile(LPCSTR audioFilePath);
 	bool PlayAudioSound();
 	
