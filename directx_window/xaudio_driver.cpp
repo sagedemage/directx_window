@@ -248,7 +248,9 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
 
-	float playLength = 1.0f;
+	float playLengthMultiplier = 1.0f;
+
+	UINT32 PlayLength = UINT32(dwChunkSize * playLengthMultiplier);
 
 	// Setup Buffer attributes
 	buffer.Flags = XAUDIO2_END_OF_STREAM;
@@ -256,7 +258,7 @@ bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
 	buffer.pAudioData = pDataBuffer;
 	
 	buffer.PlayBegin = 0;
-	buffer.PlayLength = UINT32(dwChunkSize * playLength);
+	buffer.PlayLength = PlayLength;
 	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
 	buffer.LoopLength = 0;
 	buffer.LoopCount = 1;
