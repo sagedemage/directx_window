@@ -10,7 +10,7 @@
 /* Local header files */
 #include "xaudio_driver.h"
 #include "xaudio.h"
-#include "stopwatch.h"
+#include "libstopwatch.h"
 
 bool XAudioDriver::InitializeXaudio(float volume) {
 	/* Initialize COM Library */
@@ -187,7 +187,7 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 		MessageBox(0, L"Failed CreateFile", 0, 0);
 
 		// Print error message
-		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+		hr = HRESULT_FROM_WIN32(GetLastError());
 		_com_error err(hr);
 		LPCTSTR errMsg = err.ErrorMessage();
 		OutputDebugStringW(errMsg);
@@ -206,7 +206,7 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 		MessageBox(0, L"Failed SetFilePointer", 0, 0);
 
 		// Print error message
-		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
+		hr = HRESULT_FROM_WIN32(GetLastError());
 		_com_error err(hr);
 		LPCTSTR errMsg = err.ErrorMessage();
 		OutputDebugStringW(errMsg);

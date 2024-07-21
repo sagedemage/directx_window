@@ -21,7 +21,7 @@
     <ClCompile Include="xaudio_driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stopwatch.cpp">
+    <ClCompile Include="libstopwatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,7 +49,7 @@
     <ClInclude Include="xaudio_driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stopwatch.h">
+    <ClInclude Include="libstopwatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

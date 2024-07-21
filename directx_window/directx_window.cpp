@@ -17,7 +17,7 @@
 /* Local header files */
 #include "resource.h"
 #include "xaudio_driver.h"
-#include "stopwatch.h"
+#include "libstopwatch.h"
 
 /* Global Declarations - Interfaces */
 IDXGISwapChain* swapChain;

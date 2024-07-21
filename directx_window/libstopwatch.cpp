@@ -8,7 +8,7 @@
 #include <chrono>
 
 /* Local header files */
-#include "stopwatch.h"
+#include "libstopwatch.h"
 
 void StopWatch::startTimer() {
 	start = std::chrono::steady_clock::now();
