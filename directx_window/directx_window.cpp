@@ -361,19 +361,16 @@ void UpdateScene() {
 void LoadingScreen() {
 	/* Loading screen before it loads the WAVE file */
 	// Clear the backbuffer to the updated color
-	float bgColor[4] = { 0.071f, 0.04f, 0.561f, 1.0f };
+	float bgColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 
-	// Draw the triangle
-	//d3d11DevCon->Draw(3, 0);
-
 	// Present the backbuffer to the screen
-	swapChain->Present(1, 0);
+	swapChain->Present(0, 0);
 }
 
 void DrawScene() {
 	// Clear the backbuffer to the updated color
-	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 
 	// Draw the triangle
