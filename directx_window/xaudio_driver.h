@@ -1,7 +1,5 @@
-#pragma once
-
-/* Third Party Libraries*/
-#include <xaudio2.h>
+#ifndef XAUDIO_DRIVER_H
+#define XAUDIO_DRIVER_H
 
 /* Big - Endian */
 #ifdef _XBOX
@@ -23,6 +21,9 @@
 #define foruccDPDS 'sdpd' // 1935962212
 #endif
 
+/* Third Party Libraries*/
+#include <xaudio2.h>
+
 class XAudioDriver {
 private:
 	/* Global Declarations */
@@ -43,3 +44,4 @@ public:
 	
 	void CleanUp();
 };
+#endif // XAUDIO_DRIVER_H

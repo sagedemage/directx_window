@@ -1,6 +1,9 @@
 #pragma once
 
 /* Standard Libraries */
+#ifndef LIBSTOPWATCH_H
+#define LIBSTOPWATCH_H
+
 #include <chrono>
 
 class StopWatch {
@@ -13,3 +16,5 @@ public:
 	void endTimer();
 	void printTime(std::string description);
 };
+
+#endif // LIBSTOPWATCH_H
