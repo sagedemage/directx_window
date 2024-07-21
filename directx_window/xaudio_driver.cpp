@@ -10,6 +10,7 @@
 /* Local header files */
 #include "xaudio_driver.h"
 #include "xaudio.h"
+#include "stopwatch.h"
 
 bool XAudioDriver::InitializeXaudio(float volume) {
 	/* Initialize COM Library */
@@ -222,7 +223,9 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	DWORD dwChunkPosition;
 	
 	/* RIFF chunk */
-	auto start = std::chrono::steady_clock::now();
+	StopWatch stopwatch = StopWatch();
+
+	stopwatch.startTimer();
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
 	DWORD filetype;
 	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
@@ -238,39 +241,45 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 		OutputDebugStringA(debug_msg.c_str());
 		return false;
 	}
-	auto end = std::chrono::steady_clock::now();
+	stopwatch.endTimer();
 
 	// Record time
-	auto diff = end - start;
-	double exe_time = std::chrono::duration<double, std::milli>(diff).count();
-	std::string debug_msg = "Load RIFF chunk execution time: " + std::to_string(exe_time) + "ms\n";
-	OutputDebugStringA(debug_msg.c_str());
+	stopwatch.printTime("Load RIFF chunk");
+
+	StopWatch stopwatch_fmt_sub_chunk = StopWatch();
 
 	/* fmt sub-chunk */
-	start = std::chrono::steady_clock::now();
+	stopwatch_fmt_sub_chunk.startTimer();
+
+	stopwatch.startTimer();
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
-	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
-	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
-	end = std::chrono::steady_clock::now();
+	stopwatch.endTimer();
 
 	// Record time
-	diff = end - start;
-	exe_time = std::chrono::duration<double, std::milli>(diff).count();
-	debug_msg = "Load fmt sub-chunk execution time: " + std::to_string(exe_time) + "ms\n";
-	OutputDebugStringA(debug_msg.c_str());
+	stopwatch.printTime("Load FindChunk function for the fmt sub-chunk");
+
+	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
+	stopwatch.startTimer();
+	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
+	stopwatch.endTimer();
+
+	// Record time
+	stopwatch.printTime("Load ReadChunkData function for the fmt sub-chunk");
+	
+	stopwatch_fmt_sub_chunk.endTimer();
+
+	// Record time
+	stopwatch_fmt_sub_chunk.printTime("Load fmt sub-chunk");
 
 	/* data sub-chunk */
-	start = std::chrono::steady_clock::now();
+	stopwatch.startTimer();
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
-	end = std::chrono::steady_clock::now();
+	stopwatch.endTimer();
 
 	// Record time
-	diff = end - start;
-	exe_time = std::chrono::duration<double, std::milli>(diff).count();
-	debug_msg = "Load data sub-chunk execution time: " + std::to_string(exe_time) + "ms\n";
-	OutputDebugStringA(debug_msg.c_str());
+	stopwatch.printTime("Load data sub-chunk");
 
 	float playLengthMultiplier = 1.0f;
 

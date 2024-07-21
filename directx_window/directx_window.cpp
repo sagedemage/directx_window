@@ -17,6 +17,7 @@
 /* Local header files */
 #include "resource.h"
 #include "xaudio_driver.h"
+#include "stopwatch.h"
 
 /* Global Declarations - Interfaces */
 IDXGISwapChain* swapChain;
@@ -389,32 +390,28 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	// Load Audio Files
 	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
-	auto start = std::chrono::steady_clock::now();
+	StopWatch stopwatch = StopWatch();
+
+	stopwatch.startTimer();
 	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
 		return 0;
 	}
-	auto end = std::chrono::steady_clock::now();
+	stopwatch.endTimer();
 
 	// Record time
-	auto diff = end - start;
-	double exe_time = std::chrono::duration<double, std::milli>(diff).count();
-	std::string debug_msg = "LoadAudioFile execution time: " + std::to_string(exe_time) + "ms\n";
-	OutputDebugStringA(debug_msg.c_str());
+	stopwatch.printTime("LoadAudioFile");
 
-	start = std::chrono::steady_clock::now();
+	stopwatch.startTimer();
 	// Play Audio Sound
 	if (!xAudioDriver.PlayAudioSound()) {
 		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
 		return 0;
 	}
-	end = std::chrono::steady_clock::now();
+	stopwatch.endTimer();
 
 	// Record time
-	diff = end - start;
-	exe_time = std::chrono::duration<double, std::milli>(diff).count();
-	debug_msg = "PlayAudioSound execution time: " + std::to_string(exe_time) + "ms\n";
-	OutputDebugStringA(debug_msg.c_str());
+	stopwatch.printTime("PlayAudioSound");
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {

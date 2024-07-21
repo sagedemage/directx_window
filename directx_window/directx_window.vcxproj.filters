@@ -21,6 +21,9 @@
     <ClCompile Include="xaudio_driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="stopwatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icons\directx_window.ico">
@@ -44,6 +47,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xaudio_driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stopwatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

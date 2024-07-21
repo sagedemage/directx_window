@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="directx_window.cpp" />
+    <ClCompile Include="stopwatch.cpp" />
     <ClCompile Include="xaudio_driver.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="stopwatch.h" />
     <ClInclude Include="xaudio.h" />
     <ClInclude Include="xaudio_driver.h" />
   </ItemGroup>
