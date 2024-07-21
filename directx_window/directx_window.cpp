@@ -410,8 +410,8 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	}
 	end = std::chrono::steady_clock::now();
 
+	// Record time
 	diff = end - start;
-
 	exe_time = std::chrono::duration<double, std::milli>(diff).count();
 	debug_msg = "PlayAudioSound execution time: " + std::to_string(exe_time) + "ms\n";
 	OutputDebugStringA(debug_msg.c_str());
