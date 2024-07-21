@@ -1,15 +1,12 @@
+/* Third Party Libraries*/
+#include <comdef.h>
+
 /* Standard Libraries */
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
-#include <comdef.h>
-#include <exception>
-#include <chrono>
 
 /* Local header files */
 #include "xaudio_driver.h"
-#include "xaudio.h"
 #include "libstopwatch.h"
 
 bool XAudioDriver::InitializeXaudio(float volume) {

@@ -6,13 +6,10 @@
 #include <d3d11.h>
 #include <directxmath.h>
 #include <d3dcompiler.h>
+#include <comdef.h>
 
 /* Standard Libraries */
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
-#include <chrono>
 
 /* Local header files */
 #include "resource.h"

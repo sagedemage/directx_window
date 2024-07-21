@@ -43,9 +43,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="xaudio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="xaudio_driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>

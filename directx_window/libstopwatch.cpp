@@ -1,11 +1,6 @@
 /* Standard Libraries */
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
 #include <comdef.h>
-#include <exception>
-#include <chrono>
 
 /* Local header files */
 #include "libstopwatch.h"

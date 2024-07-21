@@ -1,5 +1,8 @@
 #pragma once
 
+/* Standard Libraries */
+#include <chrono>
+
 class StopWatch {
 private:
 	/* Global Declarations */
