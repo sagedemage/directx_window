@@ -60,9 +60,4 @@
       <Filter>Source Files</Filter>
     </Page>
   </ItemGroup>
-  <ItemGroup>
-    <Media Include="music\shut_up_fool.wav">
-      <Filter>Resource Files</Filter>
-    </Media>
-  </ItemGroup>
 </Project>
