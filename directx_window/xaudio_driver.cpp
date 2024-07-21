@@ -178,7 +178,7 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize
 	return hr;
 }
 
-bool XAudioDriver::LoadAudioFile(LPCSTR audioFilePath) {
+bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	HRESULT hr;
 	HANDLE hFile = CreateFileA(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 

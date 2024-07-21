@@ -19,7 +19,7 @@ private:
 public:
 	/* Audio Methods */
 	bool InitializeXaudio(float volume);
-	bool LoadAudioFile(LPCSTR audioFilePath);
+	bool LoadWaveAudioFile(LPCSTR audioFilePath);
 	bool PlayAudioSound();
 	
 	void CleanUp();

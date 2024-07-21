@@ -390,7 +390,7 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
 	auto start = std::chrono::steady_clock::now();
-	if (!xAudioDriver.LoadAudioFile(audioFilePath)) {
+	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
 		return 0;
 	}
