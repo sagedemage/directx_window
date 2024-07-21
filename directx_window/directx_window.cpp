@@ -19,7 +19,7 @@
 #include "xaudio_driver.h"
 
 /* Global Declarations - Interfaces */
-IDXGISwapChain* SwapChain;
+IDXGISwapChain* swapChain;
 ID3D11Device* d3d11Device;
 ID3D11DeviceContext* d3d11DevCon;
 ID3D11RenderTargetView* renderTargetView;
@@ -30,6 +30,7 @@ ID3D11PixelShader* PS;
 ID3D10Blob* VS_Buffer;
 ID3D10Blob* PS_Buffer;
 ID3D11InputLayout* vertLayout;
+ID3D11Texture2D* backBuffer;
 
 float red = 0.0f;
 float green = 0.0f;
@@ -56,6 +57,7 @@ void CleanUp(XAudioDriver xAudioDriver);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
+void LoadingScreen();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
 int messageLoop(XAudioDriver xAudioDriver);
 
@@ -203,7 +205,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 
 	// Create the SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
-		D3D11_SDK_VERSION, &swapChainDesc, &SwapChain, &d3d11Device, NULL, &d3d11DevCon);
+		D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &d3d11Device, NULL, &d3d11DevCon);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed D3D11CreateDeviceAndSwapChain", 0, 0);
@@ -214,18 +216,17 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 		return false;
 	}
 
-	// Create the BackBuffer
-	ID3D11Texture2D* BackBuffer;
-	hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
+	// Create the back buffer
+	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
-	if (BackBuffer == 0) {
-		OutputDebugStringA("Backbuffer is zero");
+	if (backBuffer == 0) {
+		OutputDebugStringA("Back buffer is zero");
 		return false;
 	}
 
 	// Create the Render Target
-	hr = d3d11Device->CreateRenderTargetView(BackBuffer, NULL, &renderTargetView);
-	BackBuffer->Release();
+	hr = d3d11Device->CreateRenderTargetView(backBuffer, NULL, &renderTargetView);
+	backBuffer->Release();
 
 	// Set the Render Target
 	d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, NULL);
@@ -235,7 +236,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 
 void CleanUp(XAudioDriver xAudioDriver) {
 	/* Release the COM Objects that were created */
-	SwapChain->Release();
+	swapChain->Release();
 	d3d11Device->Release();
 	d3d11DevCon->Release();
 	renderTargetView->Release();
@@ -357,6 +358,33 @@ void UpdateScene() {
 
 }
 
+void LoadingScreen() {
+	/* Loading screen before it loads the WAVE file */
+
+	D3D11_TEXTURE2D_DESC backBufferDesc = { 0 };
+	backBuffer->GetDesc(&backBufferDesc);
+
+	D3D11_VIEWPORT viewport;
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = backBufferDesc.Width;
+	viewport.Height = backBufferDesc.Height;
+	viewport.MinDepth = D3D11_MIN_DEPTH;
+	viewport.MaxDepth = D3D11_MAX_DEPTH;
+
+	d3d11DevCon->RSSetViewports(1, &viewport);
+
+	// Clear the backbuffer to the updated color
+	float bgColor[4] = { 0.071f, 0.04f, 0.561f, 1.0f };
+	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
+
+	// Draw the triangle
+	//d3d11DevCon->Draw(3, 0);
+
+	// Present the backbuffer to the screen
+	swapChain->Present(1, 0);
+}
+
 void DrawScene() {
 	// Clear the backbuffer to the updated color
 	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -366,12 +394,14 @@ void DrawScene() {
 	d3d11DevCon->Draw(3, 0);
 
 	// Present the backbuffer to the screen
-	SwapChain->Present(0, 0);
+	swapChain->Present(0, 0);
 }
 
 int messageLoop(XAudioDriver xAudioDriver) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
+
+	LoadingScreen();
 
 	// Load Audio Files
 	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
