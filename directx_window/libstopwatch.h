@@ -1,9 +1,7 @@
-#pragma once
-
-/* Standard Libraries */
 #ifndef LIBSTOPWATCH_H
 #define LIBSTOPWATCH_H
 
+/* Standard Libraries */
 #include <chrono>
 
 class StopWatch {
