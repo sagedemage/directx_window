@@ -30,7 +30,6 @@ ID3D11PixelShader* PS;
 ID3D10Blob* VS_Buffer;
 ID3D10Blob* PS_Buffer;
 ID3D11InputLayout* vertLayout;
-ID3D11Texture2D* backBuffer;
 
 float red = 0.0f;
 float green = 0.0f;
@@ -217,6 +216,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	}
 
 	// Create the back buffer
+	ID3D11Texture2D* backBuffer;
 	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
 	if (backBuffer == 0) {
@@ -360,20 +360,6 @@ void UpdateScene() {
 
 void LoadingScreen() {
 	/* Loading screen before it loads the WAVE file */
-
-	D3D11_TEXTURE2D_DESC backBufferDesc = { 0 };
-	backBuffer->GetDesc(&backBufferDesc);
-
-	D3D11_VIEWPORT viewport;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	viewport.Width = backBufferDesc.Width;
-	viewport.Height = backBufferDesc.Height;
-	viewport.MinDepth = D3D11_MIN_DEPTH;
-	viewport.MaxDepth = D3D11_MAX_DEPTH;
-
-	d3d11DevCon->RSSetViewports(1, &viewport);
-
 	// Clear the backbuffer to the updated color
 	float bgColor[4] = { 0.071f, 0.04f, 0.561f, 1.0f };
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
