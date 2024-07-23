@@ -15,6 +15,7 @@
 #include "resource.h"
 #include "xaudio_driver.h"
 #include "libstopwatch.h"
+#include "hresult_debugger.h"
 
 /* Global Declarations - Interfaces */
 IDXGISwapChain* swapChain;
@@ -207,8 +208,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed D3D11CreateDeviceAndSwapChain", 0, 0);
 
-		std::string debug_msg = "D3D11CreateDeviceAndSwapChain ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3D11CreateDeviceAndSwapChain Error in InitializeDirect3d11App");
 
 		return false;
 	}
@@ -256,9 +256,7 @@ bool InitScene() {
 		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of VertexShader", 0, 0);
 
-		std::string debug_msg = "D3DCompileFromFile of VertexShader ERROR: ";
-		debug_msg.append(errorMsg);
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3DCompileFromFile of VertexShader Error in InitScene");
 
 		return false;
 	}
@@ -268,9 +266,7 @@ bool InitScene() {
 		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of PixelShader", 0, 0);
 
-		std::string debug_msg = "D3DCompileFromFile of PixelShader ERROR: ";
-		debug_msg.append(errorMsg);
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3DCompileFromFile of PixelShader Error in InitScene");
 
 		return false;
 	}
@@ -318,15 +314,7 @@ bool InitScene() {
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateInputLayout", 0, 0);
 
-		std::string debug_msg = "CreateInputLayout ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		debug_msg = "Number of elements: " + std::to_string(numElements) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		if (vertLayout == nullptr) {
-			OutputDebugStringA("vertLayout is a nullptr\n");
-		}
+		verbose_debug_hresult(hr, "CreateInputLayout Error in InitScene");
 
 		return false;
 	}

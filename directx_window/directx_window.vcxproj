@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="directx_window.cpp" />
+    <ClCompile Include="hresult_debugger.cpp" />
     <ClCompile Include="libstopwatch.cpp" />
     <ClCompile Include="xaudio_driver.cpp" />
   </ItemGroup>
@@ -141,6 +142,7 @@
     <Image Include="icons\small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="hresult_debugger.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="libstopwatch.h" />
     <ClInclude Include="xaudio_driver.h" />

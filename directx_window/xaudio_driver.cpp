@@ -8,23 +8,16 @@
 /* Local header files */
 #include "xaudio_driver.h"
 #include "libstopwatch.h"
+#include "hresult_debugger.h"
 
 bool XAudioDriver::InitializeXaudio(float volume) {
 	/* Initialize COM Library */
 	HRESULT hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
 	if (FAILED(hr)) {
-		MessageBox(0, L"Failed CoInitializeEx", 0, 0);
+		MessageBox(0, L"Failed CoInitializeEx in InitializeXaudio", 0, 0);
 
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("CoInitializeEx Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "CoInitializeEx Error in InitializeXaudio");
 
 		return false;
 	}
@@ -35,15 +28,7 @@ bool XAudioDriver::InitializeXaudio(float volume) {
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed XAudio2Create", 0, 0);
 
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("XAudio2Create Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "XAudio2Create Error in InitializeXaudio");
 
 		return false;
 	}
@@ -58,23 +43,15 @@ bool XAudioDriver::InitializeXaudio(float volume) {
 		NULL
 		);
 
-	pMasterVoice->SetVolume(volume);
-
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateMasteringVoice", 0, 0);
 
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("CreateMasteringVoice Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "Failed CreateMasteringVoice in CreateMasteringVoice");
 
 		return false;
 	}
+
+	pMasterVoice->SetVolume(volume);
 
 	return true;
 }
@@ -85,16 +62,9 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 	DWORD fileP = SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 
 	if (fileP == INVALID_SET_FILE_POINTER) {
-		// Print error message
 		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointerEx Error: INVALID_SET_FILE_POINTER\n");
 
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "SetFilePointer Error: INVALID_SET_FILE_POINTER in FindChunk");
 
 		return hr;
 	}
@@ -155,16 +125,9 @@ HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersiz
 	DWORD fileP = SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN);
 
 	if (fileP == INVALID_SET_FILE_POINTER) {
-		// Print error message
 		HRESULT hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointer Error: INVALID_SET_FILE_POINTER\n");
 
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "SetFilePointer Error: INVALID_SET_FILE_POINTER in ReadChunkData");
 
 		return hr;
 	}
@@ -181,18 +144,11 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	HANDLE hFile = CreateFileA(audioFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 
 	if (hFile == INVALID_HANDLE_VALUE) {
-		MessageBox(0, L"Failed CreateFile", 0, 0);
+		MessageBox(0, L"Failed CreateFileA in LoadWaveAudioFile", 0, 0);
 
-		// Print error message
 		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("CreateFileA Error\n");
 
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "Failed CreateFileA in LoadWaveAudioFile");
 
 		return false;
 	}
@@ -200,18 +156,10 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	DWORD fileP = SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 
 	if (fileP == INVALID_SET_FILE_POINTER) {
-		MessageBox(0, L"Failed SetFilePointer", 0, 0);
+		MessageBox(0, L"Failed SetFilePointer in LoadWaveAudioFile", 0, 0);
 
-		// Print error message
 		hr = HRESULT_FROM_WIN32(GetLastError());
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SetFilePointerEx Error: INVALID_SET_FILE_POINTER\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "SetFilePointerEx Error: INVALID_SET_FILE_POINTER in LoadWaveAudioFile");
 
 		return false;
 	}
@@ -232,10 +180,7 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 
 		std::string debug_msg = "Filetype not WAVE\n";
 		OutputDebugStringA(debug_msg.c_str());
-
-		debug_msg = std::to_string(filetype) + "\n";
-
-		OutputDebugStringA(debug_msg.c_str());
+		
 		return false;
 	}
 	stopwatch.endTimer();
@@ -336,23 +281,9 @@ bool XAudioDriver::PlayAudioSound() {
 	hr = pXAudio2->CreateSourceVoice(&pSourceVoice, (WAVEFORMATEX*)&wfx, 0, XAUDIO2_DEFAULT_FREQ_RATIO, NULL, NULL, NULL);
 
 	if (FAILED(hr)) {
-		std::string error_code;
+		MessageBox(0, L"Failed CreateSourceVoice in PlayAudioSound", 0, 0);
 
-		MessageBox(0, L"Failed CreateSourceVoice", 0, 0);
-
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-
-		std::string errCode = "Error code: " + std::to_string(err.WCode());
-		OutputDebugStringA(errCode.c_str());
-		OutputDebugStringA("\n");
-		OutputDebugStringA("CreateSourceVoice Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "CreateSourceVoice Error in PlayAudioSound");
 
 		return false;
 	}
@@ -361,17 +292,9 @@ bool XAudioDriver::PlayAudioSound() {
 	hr = pSourceVoice->SubmitSourceBuffer(&buffer);
 
 	if (FAILED(hr)) {
-		MessageBox(0, L"Failed SubmitSourceBuffer", 0, 0);
+		MessageBox(0, L"Failed SubmitSourceBuffer in PlayAudioSound", 0, 0);
 
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("SubmitSourceBuffer Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "SubmitSourceBuffer Error in PlayAudioSound");
 
 		return false;
 	}
@@ -386,17 +309,9 @@ bool XAudioDriver::PlayAudioSound() {
 	hr = pSourceVoice->Start(0);
 
 	if (FAILED(hr)) {
-		MessageBox(0, L"Failed Start", 0, 0);
+		MessageBox(0, L"Failed Start Source Voice", 0, 0);
 
-		// Print error message
-		_com_error err(hr);
-		LPCTSTR errMsg = err.ErrorMessage();
-		OutputDebugStringW(errMsg);
-		OutputDebugStringA("\n");
-		OutputDebugStringA("Start Error\n");
-
-		std::string debug_msg = "Line number: " + std::to_string(__LINE__) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "Failed Start Source Voice in PlayAudioSound");
 
 		return false;
 	}
