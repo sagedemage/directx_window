@@ -397,7 +397,7 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	stopwatch.endTimer();
 
 	// Record time
-	stopwatch.printTime("LoadAudioFile");
+	stopwatch.printTime("LoadWaveAudioFile");
 
 	stopwatch.startTimer();
 	// Play Audio Sound
