@@ -168,9 +168,6 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	DWORD dwChunkPosition;
 	
 	/* RIFF chunk */
-	StopWatch stopwatch = StopWatch();
-
-	stopwatch.startTimer();
 	FindChunk(hFile, fourccRIFF, dwChunkSize, dwChunkPosition);
 	DWORD filetype;
 	ReadChunkData(hFile, &filetype, sizeof(DWORD), dwChunkPosition);
@@ -183,45 +180,17 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 		
 		return false;
 	}
-	stopwatch.endTimer();
-
-	// Record time
-	stopwatch.printTime("Load RIFF chunk");
-
-	StopWatch stopwatch_fmt_sub_chunk = StopWatch();
 
 	/* fmt sub-chunk */
-	stopwatch_fmt_sub_chunk.startTimer();
-
-	stopwatch.startTimer();
 	FindChunk(hFile, fourccFMT, dwChunkSize, dwChunkPosition);
-	stopwatch.endTimer();
-
-	// Record time
-	stopwatch.printTime("Load FindChunk function for the fmt sub-chunk");
 
 	// Locate the 'fmt' chunk, and copy its contents into a WAVEFORMATEXTENSIBLE structure
-	stopwatch.startTimer();
 	ReadChunkData(hFile, &wfx, dwChunkSize, dwChunkPosition);
-	stopwatch.endTimer();
-
-	// Record time
-	stopwatch.printTime("Load ReadChunkData function for the fmt sub-chunk");
-	
-	stopwatch_fmt_sub_chunk.endTimer();
-
-	// Record time
-	stopwatch_fmt_sub_chunk.printTime("Load fmt sub-chunk");
 
 	/* data sub-chunk */
-	stopwatch.startTimer();
 	FindChunk(hFile, fourccDATA, dwChunkSize, dwChunkPosition);
 	BYTE* pDataBuffer = new BYTE[dwChunkSize];
 	ReadChunkData(hFile, pDataBuffer, dwChunkSize, dwChunkPosition);
-	stopwatch.endTimer();
-
-	// Record time
-	stopwatch.printTime("Load data sub-chunk");
 
 	float playLengthMultiplier = 1.0f;
 

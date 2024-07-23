@@ -375,28 +375,16 @@ int messageLoop(XAudioDriver xAudioDriver) {
 	// Load Audio Files
 	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
 
-	StopWatch stopwatch = StopWatch();
-
-	stopwatch.startTimer();
 	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
 		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
 		return 0;
 	}
-	stopwatch.endTimer();
 
-	// Record time
-	stopwatch.printTime("LoadWaveAudioFile");
-
-	stopwatch.startTimer();
 	// Play Audio Sound
 	if (!xAudioDriver.PlayAudioSound()) {
 		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
 		return 0;
 	}
-	stopwatch.endTimer();
-
-	// Record time
-	stopwatch.printTime("PlayAudioSound");
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
