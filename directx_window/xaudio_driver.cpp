@@ -51,7 +51,7 @@ bool XAudioDriver::InitializeXaudio(float volume) {
 	/* Create a mastering voice */
 	hr = pXAudio2->CreateMasteringVoice(
 		&pMasterVoice, 
-		XAUDIO2_DEFAULT_CHANNELS, 
+		2, 
 		XAUDIO2_DEFAULT_SAMPLERATE,
 		0,
 		NULL,
