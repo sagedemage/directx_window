@@ -435,3 +435,9 @@ FodyWeavers.xsd
 *.xcf
 *.kra
 *.*~
+*.mscz
+*.aup3
+*.gif
+
+# VSCode
+.vscode/

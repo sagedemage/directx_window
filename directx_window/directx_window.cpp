@@ -1,18 +1,24 @@
 // directx_window.cpp : Defines the entry point for the application.
 //
 
+/* Third Party Libraries*/
 #include <windows.h>
 #include <d3d11.h>
 #include <directxmath.h>
 #include <d3dcompiler.h>
+#include <comdef.h>
+
+/* Standard Libraries */
+#include <string>
+
+/* Local header files */
 #include "resource.h"
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string> 
+#include "xaudio_driver.h"
+#include "libstopwatch.h"
+#include "hresult_debugger.h"
 
 /* Global Declarations - Interfaces */
-IDXGISwapChain* SwapChain;
+IDXGISwapChain* swapChain;
 ID3D11Device* d3d11Device;
 ID3D11DeviceContext* d3d11DevCon;
 ID3D11RenderTargetView* renderTargetView;
@@ -41,14 +47,17 @@ ID3D10Blob* ppErrorMsgs;
 const int Width = 800;
 const int Height = 600;
 
+const float volume = 0.25;
+
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
-void CleanUp();
+void CleanUp(XAudioDriver xAudioDriver);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
+void LoadingScreen();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
-int messageLoop();
+int messageLoop(XAudioDriver xAudioDriver);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -70,17 +79,22 @@ D3D11_INPUT_ELEMENT_DESC layout[] =
 
 UINT numElements = ARRAYSIZE(layout);
 
+/* Main function */
 int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nShowCmd)
 {
+	HRESULT hr = S_OK;
+
+	/* Window */
 	// Initialize Window
 	if (!InitializeWindow(hInstance, nShowCmd, Width, Height, true)) {
 		MessageBox(0, L"Window Initialization - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
+	/* Direct3D */
 	// Initialize Direct3D
 	if (!InitializeDirect3d11App(hInstance)) {
 		MessageBox(0, L"Direct3D Initialization - Failed", L"Error", MB_OK);
@@ -93,9 +107,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 		return 0;
 	}
 
-	messageLoop();
+	/* Audio */
+	XAudioDriver xAudioDriver = XAudioDriver();
 
-	CleanUp();
+	// Initialize XAudio
+	if (!xAudioDriver.InitializeXaudio(volume)) {
+		MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
+		return 0;
+	}
+
+	messageLoop(xAudioDriver);
+
+	/* Clean up resources */
+	CleanUp(xAudioDriver);
 
 	return 0;
 }
@@ -179,29 +203,28 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 
 	// Create the SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, NULL,
-		D3D11_SDK_VERSION, &swapChainDesc, &SwapChain, &d3d11Device, NULL, &d3d11DevCon);
+		D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &d3d11Device, NULL, &d3d11DevCon);
 
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed D3D11CreateDeviceAndSwapChain", 0, 0);
 
-		std::string debug_msg = "D3D11CreateDeviceAndSwapChain ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3D11CreateDeviceAndSwapChain Error in InitializeDirect3d11App");
 
 		return false;
 	}
 
-	// Create the BackBuffer
-	ID3D11Texture2D* BackBuffer;
-	hr = SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
+	// Create the back buffer
+	ID3D11Texture2D* backBuffer;
+	hr = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 
-	if (BackBuffer == 0) {
-		OutputDebugStringA("Backbuffer is zero");
+	if (backBuffer == 0) {
+		OutputDebugStringA("Back buffer is zero");
 		return false;
 	}
 
 	// Create the Render Target
-	hr = d3d11Device->CreateRenderTargetView(BackBuffer, NULL, &renderTargetView);
-	BackBuffer->Release();
+	hr = d3d11Device->CreateRenderTargetView(backBuffer, NULL, &renderTargetView);
+	backBuffer->Release();
 
 	// Set the Render Target
 	d3d11DevCon->OMSetRenderTargets(1, &renderTargetView, NULL);
@@ -209,9 +232,9 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	return true;
 }
 
-void CleanUp() {
+void CleanUp(XAudioDriver xAudioDriver) {
 	/* Release the COM Objects that were created */
-	SwapChain->Release();
+	swapChain->Release();
 	d3d11Device->Release();
 	d3d11DevCon->Release();
 	renderTargetView->Release();
@@ -222,6 +245,8 @@ void CleanUp() {
 	VS_Buffer->Release();
 	PS_Buffer->Release();
 	vertLayout->Release();
+
+	xAudioDriver.CleanUp();
 }
 
 bool InitScene() {
@@ -231,9 +256,7 @@ bool InitScene() {
 		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of VertexShader", 0, 0);
 
-		std::string debug_msg = "D3DCompileFromFile of VertexShader ERROR: ";
-		debug_msg.append(errorMsg);
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3DCompileFromFile of VertexShader Error in InitScene");
 
 		return false;
 	}
@@ -243,9 +266,7 @@ bool InitScene() {
 		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of PixelShader", 0, 0);
 
-		std::string debug_msg = "D3DCompileFromFile of PixelShader ERROR: ";
-		debug_msg.append(errorMsg);
-		OutputDebugStringA(debug_msg.c_str());
+		verbose_debug_hresult(hr, "D3DCompileFromFile of PixelShader Error in InitScene");
 
 		return false;
 	}
@@ -293,15 +314,7 @@ bool InitScene() {
 	if (FAILED(hr)) {
 		MessageBox(0, L"Failed CreateInputLayout", 0, 0);
 
-		std::string debug_msg = "CreateInputLayout ERROR\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		debug_msg = "Number of elements: " + std::to_string(numElements) + "\n";
-		OutputDebugStringA(debug_msg.c_str());
-
-		if (vertLayout == nullptr) {
-			OutputDebugStringA("vertLayout is a nullptr\n");
-		}
+		verbose_debug_hresult(hr, "CreateInputLayout Error in InitScene");
 
 		return false;
 	}
@@ -331,21 +344,47 @@ void UpdateScene() {
 
 }
 
+void LoadingScreen() {
+	/* Loading screen before it loads the WAVE file */
+	// Clear the backbuffer to the updated color
+	float bgColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
+
+	// Present the backbuffer to the screen
+	swapChain->Present(0, 0);
+}
+
 void DrawScene() {
 	// Clear the backbuffer to the updated color
-	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
 
 	// Draw the triangle
 	d3d11DevCon->Draw(3, 0);
 
 	// Present the backbuffer to the screen
-	SwapChain->Present(0, 0);
+	swapChain->Present(0, 0);
 }
 
-int messageLoop() {
+int messageLoop(XAudioDriver xAudioDriver) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
+
+	LoadingScreen();
+
+	// Load Audio Files
+	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
+
+	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
+		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
+		return 0;
+	}
+
+	// Play Audio Sound
+	if (!xAudioDriver.PlayAudioSound()) {
+		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
+		return 0;
+	}
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -396,3 +435,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
+
+
+
