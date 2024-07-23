@@ -149,7 +149,7 @@ HRESULT XAudioDriver::FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, 
 	return S_OK;
 }
 
-HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset) {
+HRESULT XAudioDriver::ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD bufferoffset) {
 	HRESULT hr = S_OK;
 
 	DWORD fileP = SetFilePointer(hFile, bufferoffset, NULL, FILE_BEGIN);
@@ -287,12 +287,12 @@ bool XAudioDriver::LoadWaveAudioFile(LPCSTR audioFilePath) {
 	buffer.AudioBytes = dwChunkSize;
 	buffer.pAudioData = pDataBuffer;
 	
-	buffer.PlayBegin = 0;
-	buffer.PlayLength = PlayLength;
-	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1;
-	buffer.LoopLength = 0;
+	buffer.PlayBegin = 0; // Optional
+	buffer.PlayLength = PlayLength; // Optional
+	buffer.LoopBegin = buffer.PlayBegin + buffer.PlayLength-1; // Optional
+	buffer.LoopLength = 0; // Optional
 	buffer.LoopCount = 1;
-	buffer.pContext = NULL;
+	buffer.pContext = NULL; // Optional
 
 	return true;
 }
@@ -319,7 +319,7 @@ bool XAudioDriver::PlayAudioSound() {
 	wfx.Format.nAvgBytesPerSec = nSamplesPerSec * nBlockAlign;
 	wfx.Format.nBlockAlign = nBlockAlign;
 	wfx.Format.wBitsPerSample = wBitsPerSample;
-	wfx.Format.cbSize = 22;
+	wfx.Format.cbSize = 22; // Optional
 
 	/* Sample Format */
 	wfx.Samples.wValidBitsPerSample = wBitsPerSample;

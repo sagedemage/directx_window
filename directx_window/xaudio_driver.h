@@ -35,7 +35,7 @@ private:
 
 	/* Methods */
 	static HRESULT FindChunk(HANDLE hFile, DWORD fourcc, DWORD& dwChunkSize, DWORD& dwChunkDataPosition);
-	static HRESULT ReadChunkData(HANDLE hFile, void* buffer, DWORD buffersize, DWORD bufferoffset);
+	static HRESULT ReadChunkData(HANDLE hFile, LPVOID buffer, DWORD buffersize, DWORD bufferoffset);
 public:
 	/* Audio Methods */
 	bool InitializeXaudio(float volume);
