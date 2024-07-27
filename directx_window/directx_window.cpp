@@ -56,7 +56,6 @@ void CleanUp(Audio audio);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
-void LoadingScreen();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
 int messageLoop(Audio audio);
 
@@ -356,16 +355,6 @@ void UpdateScene() {
 
 }
 
-void LoadingScreen() {
-	/* Loading screen before it loads the WAVE file */
-	// Clear the backbuffer to the updated color
-	float bgColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
-
-	// Present the backbuffer to the screen
-	swapChain->Present(0, 0);
-}
-
 void DrawScene() {
 	// Clear the backbuffer to the updated color
 	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -381,8 +370,6 @@ void DrawScene() {
 int messageLoop(Audio audio) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
-
-	//LoadingScreen();
 
 	audio.playMusic();
 
