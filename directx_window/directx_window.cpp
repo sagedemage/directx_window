@@ -272,7 +272,6 @@ bool InitScene() {
 
 	hr = D3DCompileFromFile(shaderFilePath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_5_0", 0, 0, &PS_Buffer, &ppErrorMsgs);
 	if (FAILED(hr)) {
-		std::string errorMsg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of PixelShader", 0, 0);
 		OutputDebugStringA("D3DCompileFromFile of PixelShader Error in InitScene\n");
 
