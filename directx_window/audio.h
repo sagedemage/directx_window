@@ -6,8 +6,10 @@
 #include <SDL_mixer.h>
 
 /* Standard Libraries */
-#include <iostream>
 #include <string>
+
+/* Third Party Libraries*/
+#include <comdef.h>
 
 class Audio {
 public:

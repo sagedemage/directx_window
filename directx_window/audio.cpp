@@ -1,13 +1,5 @@
-/* Third Party Libraries*/
-#include <comdef.h>
-
-/* Standard Libraries */
-#include <iostream>
-#include <string>
-
 /* Local header files */
 #include "audio.h"
-//#include "libstopwatch.h"
 #include "hresult_debugger.h"
 
 Audio::Audio(const int channels, const int chunksize) {
