@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClCompile Include="directx_window.cpp" />
     <ClCompile Include="hresult_debugger.cpp" />
-    <ClCompile Include="libstopwatch.cpp" />
     <ClCompile Include="audio.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +151,6 @@
   <ItemGroup>
     <ClInclude Include="hresult_debugger.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="libstopwatch.h" />
     <ClInclude Include="audio.h" />
   </ItemGroup>
   <ItemGroup>
