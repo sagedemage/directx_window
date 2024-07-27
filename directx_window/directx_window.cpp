@@ -14,7 +14,6 @@
 /* Local header files */
 #include "resource.h"
 #include "audio.h"
-#include "libstopwatch.h"
 #include "hresult_debugger.h"
 
 /* Global Declarations - Interfaces */
@@ -260,20 +259,27 @@ bool InitScene() {
 	// Compile Shaders from shader file
 	hr = D3DCompileFromFile(shaderFilePath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_5_0", 0, 0, &VS_Buffer, &ppErrorMsgs);
 	if (FAILED(hr)) {
-		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of VertexShader", 0, 0);
+		OutputDebugStringA("D3DCompileFromFile of VertexShader Error in InitScene\n");
 
-		verbose_debug_hresult(hr, "D3DCompileFromFile of VertexShader Error in InitScene");
+		// Shader error message
+		std::string shader_err_msg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
+		std::string debug_msg = "Shader error message: " + shader_err_msg;
+		OutputDebugStringA(debug_msg.c_str());
 
 		return false;
 	}
 
 	hr = D3DCompileFromFile(shaderFilePath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_5_0", 0, 0, &PS_Buffer, &ppErrorMsgs);
 	if (FAILED(hr)) {
-		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
+		std::string errorMsg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of PixelShader", 0, 0);
+		OutputDebugStringA("D3DCompileFromFile of PixelShader Error in InitScene\n");
 
-		verbose_debug_hresult(hr, "D3DCompileFromFile of PixelShader Error in InitScene");
+		// Shader error message
+		std::string shader_err_msg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
+		std::string debug_msg = "Shader error message: " + shader_err_msg;
+		OutputDebugStringA(debug_msg.c_str());
 
 		return false;
 	}
