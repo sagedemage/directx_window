@@ -13,8 +13,7 @@
 
 /* Local header files */
 #include "resource.h"
-#include "xaudio_driver.h"
-#include "libstopwatch.h"
+#include "audio.h"
 #include "hresult_debugger.h"
 
 /* Global Declarations - Interfaces */
@@ -47,17 +46,18 @@ ID3D10Blob* ppErrorMsgs;
 const int Width = 800;
 const int Height = 600;
 
-const float volume = 0.25;
+// Audio
+const int music_volume = 64;
+const char* music_path = "audio/sorrow.mp3";
 
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
-void CleanUp(XAudioDriver xAudioDriver);
+void CleanUp(Audio audio);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
-void LoadingScreen();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
-int messageLoop(XAudioDriver xAudioDriver);
+int messageLoop(Audio audio);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -87,6 +87,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 {
 	HRESULT hr = S_OK;
 
+	/* SDL_mixer */
+	const int channels = 2;
+	const int chunksize = 1024;
+
 	/* Window */
 	// Initialize Window
 	if (!InitializeWindow(hInstance, nShowCmd, Width, Height, true)) {
@@ -108,18 +112,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	/* Audio */
-	XAudioDriver xAudioDriver = XAudioDriver();
+	Audio audio = Audio(channels, chunksize);
 
-	// Initialize XAudio
-	if (!xAudioDriver.InitializeXaudio(volume)) {
-		MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
+	if (!audio.loadMusic(music_path)) {
+		MessageBox(0, L"Load music - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
-	messageLoop(xAudioDriver);
+	audio.changeVolume(music_volume);
+
+	messageLoop(audio);
 
 	/* Clean up resources */
-	CleanUp(xAudioDriver);
+	CleanUp(audio);
 
 	return 0;
 }
@@ -232,7 +237,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	return true;
 }
 
-void CleanUp(XAudioDriver xAudioDriver) {
+void CleanUp(Audio audio) {
 	/* Release the COM Objects that were created */
 	swapChain->Release();
 	d3d11Device->Release();
@@ -246,27 +251,33 @@ void CleanUp(XAudioDriver xAudioDriver) {
 	PS_Buffer->Release();
 	vertLayout->Release();
 
-	xAudioDriver.CleanUp();
+	audio.freeResources();
 }
 
 bool InitScene() {
 	// Compile Shaders from shader file
 	hr = D3DCompileFromFile(shaderFilePath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "VS", "vs_5_0", 0, 0, &VS_Buffer, &ppErrorMsgs);
 	if (FAILED(hr)) {
-		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of VertexShader", 0, 0);
+		OutputDebugStringA("D3DCompileFromFile of VertexShader Error in InitScene\n");
 
-		verbose_debug_hresult(hr, "D3DCompileFromFile of VertexShader Error in InitScene");
+		// Shader error message
+		std::string shader_err_msg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
+		std::string debug_msg = "Shader error message: " + shader_err_msg;
+		OutputDebugStringA(debug_msg.c_str());
 
 		return false;
 	}
 
 	hr = D3DCompileFromFile(shaderFilePath, 0, D3D_COMPILE_STANDARD_FILE_INCLUDE, "PS", "ps_5_0", 0, 0, &PS_Buffer, &ppErrorMsgs);
 	if (FAILED(hr)) {
-		const char* errorMsg = (const char*)ppErrorMsgs->GetBufferPointer();
 		MessageBox(0, L"Failed D3DCompileFromFile of PixelShader", 0, 0);
+		OutputDebugStringA("D3DCompileFromFile of PixelShader Error in InitScene\n");
 
-		verbose_debug_hresult(hr, "D3DCompileFromFile of PixelShader Error in InitScene");
+		// Shader error message
+		std::string shader_err_msg = (std::string)(const char*)ppErrorMsgs->GetBufferPointer();
+		std::string debug_msg = "Shader error message: " + shader_err_msg;
+		OutputDebugStringA(debug_msg.c_str());
 
 		return false;
 	}
@@ -344,16 +355,6 @@ void UpdateScene() {
 
 }
 
-void LoadingScreen() {
-	/* Loading screen before it loads the WAVE file */
-	// Clear the backbuffer to the updated color
-	float bgColor[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
-	d3d11DevCon->ClearRenderTargetView(renderTargetView, bgColor);
-
-	// Present the backbuffer to the screen
-	swapChain->Present(0, 0);
-}
-
 void DrawScene() {
 	// Clear the backbuffer to the updated color
 	float bgColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -366,25 +367,11 @@ void DrawScene() {
 	swapChain->Present(0, 0);
 }
 
-int messageLoop(XAudioDriver xAudioDriver) {
+int messageLoop(Audio audio) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
-	LoadingScreen();
-
-	// Load Audio Files
-	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
-
-	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
-		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
-		return 0;
-	}
-
-	// Play Audio Sound
-	if (!xAudioDriver.PlayAudioSound()) {
-		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
-		return 0;
-	}
+	audio.playMusic();
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
