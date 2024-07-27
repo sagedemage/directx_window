@@ -18,7 +18,7 @@
     <ClCompile Include="directx_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xaudio_driver.cpp">
+    <ClCompile Include="audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="libstopwatch.cpp">
@@ -46,7 +46,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="xaudio_driver.h">
+    <ClInclude Include="audio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="libstopwatch.h">

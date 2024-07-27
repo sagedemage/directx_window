@@ -13,7 +13,7 @@
 
 /* Local header files */
 #include "resource.h"
-#include "xaudio_driver.h"
+#include "audio.h"
 #include "libstopwatch.h"
 #include "hresult_debugger.h"
 
@@ -47,17 +47,19 @@ ID3D10Blob* ppErrorMsgs;
 const int Width = 800;
 const int Height = 600;
 
-const float volume = 0.25;
+// Audio
+const int music_volume = 64;
+const char* music_path = "audio/sorrow.mp3";
 
 /* Function Prototypes */
 bool InitializeDirect3d11App(HINSTANCE hIntance);
-void CleanUp(XAudioDriver xAudioDriver);
+void CleanUp(Audio audio);
 bool InitScene();
 void UpdateScene();
 void DrawScene();
 void LoadingScreen();
 bool InitializeWindow(HINSTANCE hInstance, int ShowWnd, int width, int height, bool windowed);
-int messageLoop(XAudioDriver xAudioDriver);
+int messageLoop(Audio audio);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -87,6 +89,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 {
 	HRESULT hr = S_OK;
 
+	/* SDL_mixer */
+	const int channels = 2;
+	const int chunksize = 1024;
+
 	/* Window */
 	// Initialize Window
 	if (!InitializeWindow(hInstance, nShowCmd, Width, Height, true)) {
@@ -108,18 +114,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	/* Audio */
-	XAudioDriver xAudioDriver = XAudioDriver();
+	Audio audio = Audio(channels, chunksize);
 
-	// Initialize XAudio
-	if (!xAudioDriver.InitializeXaudio(volume)) {
-		MessageBox(0, L"XAudio Initialization - Failed", L"Error", MB_OK);
+	if (!audio.loadMusic(music_path)) {
+		MessageBox(0, L"Load music - Failed", L"Error", MB_OK);
 		return 0;
 	}
 
-	messageLoop(xAudioDriver);
+	audio.changeVolume(music_volume);
+
+	messageLoop(audio);
 
 	/* Clean up resources */
-	CleanUp(xAudioDriver);
+	CleanUp(audio);
 
 	return 0;
 }
@@ -232,7 +239,7 @@ bool InitializeDirect3d11App(HINSTANCE hInstance) {
 	return true;
 }
 
-void CleanUp(XAudioDriver xAudioDriver) {
+void CleanUp(Audio audio) {
 	/* Release the COM Objects that were created */
 	swapChain->Release();
 	d3d11Device->Release();
@@ -246,7 +253,7 @@ void CleanUp(XAudioDriver xAudioDriver) {
 	PS_Buffer->Release();
 	vertLayout->Release();
 
-	xAudioDriver.CleanUp();
+	audio.freeResources();
 }
 
 bool InitScene() {
@@ -366,25 +373,13 @@ void DrawScene() {
 	swapChain->Present(0, 0);
 }
 
-int messageLoop(XAudioDriver xAudioDriver) {
+int messageLoop(Audio audio) {
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
 
-	LoadingScreen();
+	//LoadingScreen();
 
-	// Load Audio Files
-	LPCSTR audioFilePath = ".\\soundeffect\\sample_soundeffect.wav";
-
-	if (!xAudioDriver.LoadWaveAudioFile(audioFilePath)) {
-		MessageBox(0, L"Load Audio Files - Failed", L"Error", MB_OK);
-		return 0;
-	}
-
-	// Play Audio Sound
-	if (!xAudioDriver.PlayAudioSound()) {
-		MessageBox(0, L"Play Audio Sound - Failed", L"Error", MB_OK);
-		return 0;
-	}
+	audio.playMusic();
 
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
